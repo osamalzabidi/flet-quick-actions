@@ -5,7 +5,7 @@ description = "Example app for flet-quick-actions: exercises every quick action 
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "flet_quick_actions @ git+https://github.com/osamalzabidi/flet-quick-actions.git",
+    "flet_quick_actions",
     "flet>=1.0.5",
 ]
 

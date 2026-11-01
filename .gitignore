@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
@@ -19,7 +19,7 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
+# wheels/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -231,8 +231,8 @@ venv/
 
 # Build output
 dist/
-build/
-wheels/
+# build/
+# wheels/
 
 # Flet build artifacts
 examples/*/build/
