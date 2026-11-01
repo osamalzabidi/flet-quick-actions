@@ -30,15 +30,11 @@ Issues = "https://github.com/osamalzabidi/flet-quick-actions/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["flet_quick_actions*", "flutter*"]
+include = ["flet_quick_actions", "flet_quick_actions.*", "flutter", "flutter.*"]
 
 [tool.setuptools.package-data]
-"flutter.flet_quick_actions" = [
-    "pubspec.yaml",
-    "pubspec.lock",
-    "lib/*.dart",
-    "lib/**/*.dart",
-]
+"flet_quick_actions" = ["**/*"]
+"flutter.flet_quick_actions" = ["**/*"]
 
 [build-system]
 requires = ["setuptools"]

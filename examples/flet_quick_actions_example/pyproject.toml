@@ -9,11 +9,11 @@ dependencies = [
     "flet>=1.0.5",
 ]
 
-[tool.uv.sources]
-flet-quick-actions = { path = "../..", editable = true }
-
 [tool.flet.dev_packages]
 flet-quick-actions = "../.."
+
+[tool.uv.sources]
+flet-quick-actions = { path = "../..", editable = true }
 
 [tool.flet]
 org = "flet.app"
