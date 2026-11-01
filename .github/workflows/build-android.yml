@@ -1,9 +1,6 @@
 name: Build Android Example & Create Release
 
 on:
-#   push:
-#     tags: ["v*"]
-#   pull_request:
   workflow_dispatch:
     inputs:
       build_version:
@@ -26,7 +23,7 @@ env:
   BUILD_NUMBER: ${{ inputs.build_number || '1' }}
 
 jobs:
-  # Quality gate: lint + tests (blocks every build).
+  # Quality gate: formatting check (blocks every build).
   quality:
     runs-on: ubuntu-latest
     steps:
@@ -35,15 +32,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - name: Install dependencies (incl. dev group)
+      - name: Install dependencies
         run: |
           uv pip install --system -e .
           uv pip install --system black
       - name: Black
-        run: |
-          black --check --diff src examples
+        run: black --check --diff src examples
 
-  # Creates the release placeholder this workflow's jobs upload to.
+  # Creates the release placeholder that build-apk uploads into.
   prepare-release:
     needs: [quality]
     runs-on: ubuntu-latest
@@ -70,7 +66,6 @@ jobs:
             echo "MAKE_LATEST=false" >> $GITHUB_OUTPUT
           fi
       - name: Create GitHub Release Placeholder
-        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag_info.outputs.TAG_NAME }}
@@ -79,16 +74,11 @@ jobs:
           make_latest: ${{ steps.tag_info.outputs.MAKE_LATEST }}
           body: |
             Automated Android example build for `flet-quick-actions`.
-
-            The example app exercises the full extension API on every
-            platform. Android builds run the `flet-quick-actions-patch`
-            step, which injects the scheduled-notification receivers and
-            the core-library-desugaring flags.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Android APK, split per ABI, with the notification patcher.
-  build-apk-split:
+  # Android APK, split per ABI (arm64-v8a, armeabi-v7a, x86_64).
+  build-apk:
     needs: [prepare-release]
     runs-on: ubuntu-latest
     steps:
@@ -101,39 +91,22 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
       - name: Build extension wheel
-        run: |
-          uv run python .github/scripts/sync_versions.py
-          uv build --wheel --out-dir wheels/ .
-      - name: First flet build pass (desugaring failure tolerated)
+        run: uv build --wheel --out-dir wheels/ .
+
+      - name: Build Android APK
         working-directory: examples/flet_quick_actions_example
         env:
           PIP_FIND_LINKS: ${{ github.workspace }}/wheels
         run: |
-          set +e
           uv run flet build apk --yes --project quickactions \
             --product "Flet Quick Actions Example" --org flet.app \
-            --build-version ${{ env.BUILD_VERSION }} --build-number ${{ env.BUILD_NUMBER }} \
+            --build-version ${{ env.BUILD_VERSION }} \
+            --build-number ${{ env.BUILD_NUMBER }} \
             --split-per-abi -v
-          echo "flet build exit $? - the patcher + gradle rebuild follow"
-      - name: Patch the generated Android project
-        working-directory: examples/flet_quick_actions_example
-        run: |
-          uv run flet-quick-actions-patch --project-root build/flutter \
-            --foreground-service-type specialUse
-      - name: Rebuild with gradle
-        working-directory: examples/flet_quick_actions_example/build/flutter/android
-        env:
-          SERIOUS_PYTHON_SITE_PACKAGES: ${{ github.workspace }}/examples/flet_quick_actions_example/build/site-packages
-        run: ./gradlew assembleRelease -Psplit-per-abi=true
-      - name: Stage APKs
-        working-directory: examples/flet_quick_actions_example
-        run: |
-          rm -rf build/apk && mkdir -p build/apk
-          find build/flutter -name "*.apk" -not -path "*/intermediates/*" -exec cp {} build/apk/ \;
-          ls -lh build/apk/
-      - name: Upload to GitHub Release
-        if: github.event_name != 'pull_request'
+
+      - name: Upload APKs to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare-release.outputs.TAG_NAME }}
