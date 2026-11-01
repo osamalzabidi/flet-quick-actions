@@ -92,13 +92,13 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Build extension wheel
-        run: uv build --wheel --out-dir wheels/ .
+      # - name: Build extension wheel
+      #   run: uv build --wheel --out-dir wheels/ .
 
       - name: Build Android APK
         working-directory: examples/flet_quick_actions_example
-        env:
-          PIP_FIND_LINKS: ${{ github.workspace }}/wheels
+        # env:
+        #   PIP_FIND_LINKS: ${{ github.workspace }}/wheels
         run: |
           uv run flet build apk --yes --project quickactions \
             --product "Flet Quick Actions Example" --org flet.app \

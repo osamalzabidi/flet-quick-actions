@@ -12,6 +12,9 @@ dependencies = [
 [tool.uv.sources]
 flet-quick-actions = { path = "../..", editable = true }
 
+[tool.flet.dev_packages]
+flet_quick_actions = { path = "../../src/flutter/flet_quick_actions" }
+
 [tool.flet]
 org = "flet.app"
 product = "Flet Quick Actions Example"
