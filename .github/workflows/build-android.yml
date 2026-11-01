@@ -92,39 +92,39 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # - name: Show effective package-data
-      #   run: |
-      #     python - <<'EOF'
-      #     import tomllib
-      #     with open('pyproject.toml', 'rb') as f:
-      #         cfg = tomllib.load(f)
-      #     print('package-data:', cfg['tool']['setuptools']['package-data'])
-      #     EOF
+      - name: Show effective package-data
+        run: |
+          python - <<'EOF'
+          import tomllib
+          with open('pyproject.toml', 'rb') as f:
+              cfg = tomllib.load(f)
+          print('package-data:', cfg['tool']['setuptools']['package-data'])
+          EOF
 
-      # - name: Clean stale build artefacts
-      #   run: |
-      #     rm -rf build/
-      #     rm -rf src/*.egg-info/
-      #     rm -rf /tmp/wheels/
+      - name: Clean stale build artefacts
+        run: |
+          rm -rf build/
+          rm -rf src/*.egg-info/
+          rm -rf /tmp/wheels/
 
-      # - name: Build extension wheel
-      #   run: uv build --wheel --out-dir wheels/ .
+      - name: Build extension wheel
+        run: uv build --wheel --out-dir wheels/ .
 
-      # - name: Verify extension wheel contents
-      #   run: |
-      #     python - <<'EOF'
-      #     import glob, sys, zipfile
-      #     whl = glob.glob('wheels/*.whl')[0]
-      #     with zipfile.ZipFile(whl) as z:
-      #         names = z.namelist()
-      #         for n in names:
-      #             if 'flutter' in n:
-      #                 print(n)
-      #         required = 'flutter/flet_quick_actions/lib/flet_quick_actions.dart'
-      #         if required not in names:
-      #             sys.exit(f'❌ Missing from wheel: {required}')
-      #         print(f'✅ {required} is in the wheel')
-      #     EOF
+      - name: Verify extension wheel contents
+        run: |
+          python - <<'EOF'
+          import glob, sys, zipfile
+          whl = glob.glob('wheels/*.whl')[0]
+          with zipfile.ZipFile(whl) as z:
+              names = z.namelist()
+              for n in names:
+                  if 'flutter' in n:
+                      print(n)
+              required = 'flutter/flet_quick_actions/lib/flet_quick_actions.dart'
+              if required not in names:
+                  sys.exit(f'❌ Missing from wheel: {required}')
+              print(f'✅ {required} is in the wheel')
+          EOF
 
       - name: Build Android APK
         working-directory: examples/flet_quick_actions_example
