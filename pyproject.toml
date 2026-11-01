@@ -20,7 +20,7 @@ classifiers = [
     "Intended Audience :: Developers",
 ]
 dependencies = [
-    "flet",
+    "flet>=1.0.5",
 ]
 
 [project.urls]

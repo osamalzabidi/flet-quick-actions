@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "flet-quick-actions",
-    "flet",
+    "flet>=1.0.5",
 ]
 
 [tool.uv.sources]
