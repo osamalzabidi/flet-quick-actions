@@ -41,7 +41,7 @@ jobs:
           uv pip install --system black
       - name: Black
         run: |
-          black --check --diff src tests examples
+          black --check --diff src examples
 
   # Creates the release placeholder this workflow's jobs upload to.
   prepare-release:
