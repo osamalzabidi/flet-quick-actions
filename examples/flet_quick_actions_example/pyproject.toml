@@ -9,6 +9,9 @@ dependencies = [
     "flet>=1.0.5",
 ]
 
+[tool.uv]
+find-links = ["../../wheels"]
+
 # [tool.flet.dev_packages]
 # flet-quick-actions = "../.."
 
