@@ -28,9 +28,6 @@ Homepage = "https://github.com/osamalzabidi/flet-quick-actions"
 Repository = "https://github.com/osamalzabidi/flet-quick-actions"
 Issues = "https://github.com/osamalzabidi/flet-quick-actions/issues"
 
-[project.scripts]
-flet-notifications-patch = "flet_notifications.patcher:main"
-
 [tool.setuptools.package-data]
 "flutter.flet_quick_actions" = ["pubspec.yaml", "lib/**"]
 
