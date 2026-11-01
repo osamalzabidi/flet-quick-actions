@@ -132,6 +132,9 @@ jobs:
         # env:
         #   PIP_FIND_LINKS: ${{ github.workspace }}/wheels
         run: |
+          uv sync
+          source .venv/bin/activate
+          uv pip install ../../wheels/flet_quick_actions-0.1.0-py3-none-any.whl
           uv run flet build apk \
             --yes --project quickactions \
             --product "Flet Quick Actions Example" \
