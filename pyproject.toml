@@ -28,6 +28,10 @@ Homepage = "https://github.com/osamalzabidi/flet-quick-actions"
 Repository = "https://github.com/osamalzabidi/flet-quick-actions"
 Issues = "https://github.com/osamalzabidi/flet-quick-actions/issues"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["flet_quick_actions*", "flutter*"]
+
 [tool.setuptools.package-data]
 "flutter.flet_quick_actions" = ["pubspec.yaml", "lib/**"]
 

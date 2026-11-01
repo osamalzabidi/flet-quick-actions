@@ -92,16 +92,33 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # - name: Build extension wheel
-      #   run: uv build --wheel --out-dir wheels/ .
+      - name: Build extension wheel
+        run: uv build --wheel --out-dir wheels/ .
+
+      - name: Verify extension wheel contents
+        run: |
+          uv build --wheel --out-dir /tmp/wheels .
+          python - <<'EOF'
+          import glob, sys, zipfile
+          whl = glob.glob('/tmp/wheels/*.whl')[0]
+          with zipfile.ZipFile(whl) as z:
+              names = z.namelist()
+              required = 'flutter/flet_quick_actions/lib/flet_quick_actions.dart'
+              if required not in names:
+                  print('\n'.join(n for n in names if 'flutter' in n) or 'NO FLUTTER FILES')
+                  sys.exit(f'❌ Missing from wheel: {required}')
+              print(f'✅ {required} is in the wheel')
+          EOF
 
       - name: Build Android APK
         working-directory: examples/flet_quick_actions_example
-        # env:
-        #   PIP_FIND_LINKS: ${{ github.workspace }}/wheels
+        env:
+          PIP_FIND_LINKS: ${{ github.workspace }}/wheels
         run: |
-          uv run flet build apk --yes --project quickactions \
-            --product "Flet Quick Actions Example" --org flet.app \
+          uv run flet build apk \
+            --yes --project quickactions \
+            --product "Flet Quick Actions Example" \
+            --org flet.app \
             --build-version ${{ env.BUILD_VERSION }} \
             --build-number ${{ env.BUILD_NUMBER }} \
             --split-per-abi -v
