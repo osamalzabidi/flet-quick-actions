@@ -18,6 +18,16 @@ Features include:
 
 It is based on the [quick_actions](https://pub.dev/packages/quick_actions) Flutter package.
 
+
+## Demo
+
+### Screenshots
+
+| Default Shortcuts | Updated Shortcuts | Cleared |
+|:---:|:---:|:---:|
+| <img src="screenshots/default_actions.png" width="250" alt="Action one and Action two" /> | <img src="screenshots/custom_actions.png" width="250" alt="New Message and Search" /> | <img src="screenshots/no_actions.png" width="250" alt="No actions" /> |
+| *Action one* & *Action two* | *New Message* & *Search* | No shortcuts installed |
+
 ## Documentation
 
 Detailed documentation to this package can be found [here](https://flet.dev/docs/services/quickactions/).
