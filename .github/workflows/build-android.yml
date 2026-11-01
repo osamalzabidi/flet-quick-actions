@@ -106,6 +106,7 @@ jobs:
           rm -rf build/
           rm -rf src/*.egg-info/
           rm -rf /tmp/wheels/
+          uv cache clean
 
       - name: Build extension wheel
         run: uv build --wheel --out-dir wheels/ .
