@@ -5,12 +5,15 @@ description = "Example app for flet-quick-actions: exercises every quick action 
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "flet",
     "flet-quick-actions",
+    "flet",
 ]
 
-# [tool.uv.sources]
-# flet-quick-actions = { path = "../..", editable = true }
+[tool.uv.sources]
+flet-quick-actions = { path = "../..", editable = true }
+
+[tool.flet.dev_packages]
+flet-quick-actions = "../.."
 
 [tool.flet]
 org = "flet.app"
