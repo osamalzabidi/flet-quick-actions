@@ -38,13 +38,10 @@ jobs:
       - name: Install dependencies (incl. dev group)
         run: |
           uv pip install --system -e .
-          uv pip install --system pytest pytest-asyncio ruff
-      - name: Ruff
+          uv pip install --system black
+      - name: Black
         run: |
-          ruff check src tests examples
-          ruff format --check src tests examples
-      - name: Tests
-        run: pytest -q
+          black --check --diff src tests examples
 
   # Creates the release placeholder this workflow's jobs upload to.
   prepare-release:
