@@ -134,7 +134,7 @@ jobs:
         run: |
           uv run flet build apk \
             --yes --project quickactions \
-            --product "Flet Quick Actions Example" \
+            --product "quickactions" \
             --org flet.app \
             --build-version ${{ env.BUILD_VERSION }} \
             --build-number ${{ env.BUILD_NUMBER }} \
