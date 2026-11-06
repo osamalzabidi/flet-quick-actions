@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Flet Quick Actions service."
 readme = "README.md"
 authors = [
-    { name = "Osama Mohammed", email = "support.osamalzabidi@gmail.com" }
+    { name = "Osama Mohammed", email = "osamalzabidi@gmail.com" }
 ]
 requires-python = ">=3.10"
 keywords = ["flet", "quick", "actions", "android", "ios", "shortcut"]
