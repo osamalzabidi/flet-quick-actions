@@ -22,6 +22,11 @@ env:
   BUILD_VERSION: ${{ inputs.build_version || '0.1.0' }}
   BUILD_NUMBER: ${{ inputs.build_number || '1' }}
 
+# Prevent two dispatches from racing on the same tag.
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # Quality gate: formatting check (blocks every build).
   quality:
@@ -39,47 +44,9 @@ jobs:
       - name: Black
         run: black --check --diff src examples
 
-  # Creates the release placeholder that build-apk uploads into.
-  prepare-release:
-    needs: [quality]
-    runs-on: ubuntu-latest
-    outputs:
-      TAG_NAME: ${{ steps.tag_info.outputs.TAG_NAME }}
-      RELEASE_NAME: ${{ steps.tag_info.outputs.RELEASE_NAME }}
-      IS_PRERELEASE: ${{ steps.tag_info.outputs.IS_PRERELEASE }}
-      MAKE_LATEST: ${{ steps.tag_info.outputs.MAKE_LATEST }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate Release Tag & Name
-        id: tag_info
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=flet-quick-actions ${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
-            echo "MAKE_LATEST=true" >> $GITHUB_OUTPUT
-          else
-            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            echo "TAG_NAME=build-${SHORT_SHA}" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Automated Build (${SHORT_SHA})" >> $GITHUB_OUTPUT
-            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
-            echo "MAKE_LATEST=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Create GitHub Release Placeholder
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag_info.outputs.TAG_NAME }}
-          name: ${{ steps.tag_info.outputs.RELEASE_NAME }}
-          prerelease: ${{ steps.tag_info.outputs.IS_PRERELEASE }}
-          make_latest: ${{ steps.tag_info.outputs.MAKE_LATEST }}
-          body: |
-            Automated Android example build for `flet-quick-actions`.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # Android APK, split per ABI (arm64-v8a, armeabi-v7a, x86_64).
   build-apk:
-    needs: [prepare-release]
+    needs: [quality]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -140,11 +107,59 @@ jobs:
             --build-number ${{ env.BUILD_NUMBER }} \
             --split-per-abi -v
 
-      - name: Upload APKs to GitHub Release
+      - name: Upload APKs as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-release
+          path: examples/flet_quick_actions_example/build/apk/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  # Runs ONLY after build-apk succeeds. Creates/updates the release
+  # and attaches the freshly built APKs.
+  create-release:
+    needs: [build-apk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Release Tag & Name
+        id: tag_info
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=flet-quick-actions ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "MAKE_LATEST=true" >> $GITHUB_OUTPUT
+          else
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            echo "TAG_NAME=build-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Automated Build (${SHORT_SHA})" >> $GITHUB_OUTPUT
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "MAKE_LATEST=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download APK artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: apk-release
+          path: apks
+
+      - name: Create GitHub Release with APKs
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.prepare-release.outputs.TAG_NAME }}
-          files: examples/flet_quick_actions_example/build/apk/*.apk
+          tag_name: ${{ steps.tag_info.outputs.TAG_NAME }}
+          name: ${{ steps.tag_info.outputs.RELEASE_NAME }}
+          prerelease: ${{ steps.tag_info.outputs.IS_PRERELEASE }}
+          make_latest: ${{ steps.tag_info.outputs.MAKE_LATEST }}
+          fail_on_unmatched_files: true
+          files: apks/*.apk
+          body: |
+            Automated Android example build for `flet-quick-actions`.
+
+            - Version: `${{ env.BUILD_VERSION }}`
+            - Build number: `${{ env.BUILD_NUMBER }}`
+            - Commit: `${{ github.sha }}`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

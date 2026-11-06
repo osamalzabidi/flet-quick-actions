@@ -5,15 +5,11 @@ import traceback
 # ---------------------------------------------------------------------------
 # Flet logging cookbook pattern
 # https://flet.dev/docs/cookbook/logging
-#
-# Configure logging BEFORE calling ft.run(). While troubleshooting the black
-# screen we use DEBUG; switch to INFO for normal use.
 # ---------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
-# Raise Flet's own logger to DEBUG so framework/transport details are visible.
 logging.getLogger("flet").setLevel(logging.DEBUG)
 # Enable the two verbose loggers only when you need deep control-tree diagnostics.
 # logging.getLogger("flet_object_patch").setLevel(logging.DEBUG)
@@ -21,9 +17,6 @@ logging.getLogger("flet").setLevel(logging.DEBUG)
 
 logger = logging.getLogger("quick_actions_example")
 
-# ---------------------------------------------------------------------------
-# STAGE 0 — prove Python started at all.
-# ---------------------------------------------------------------------------
 logger.debug("=" * 70)
 logger.debug("[BOOT-0] main.py is executing")
 logger.debug("[BOOT-0] Python %s", sys.version)
@@ -32,9 +25,6 @@ logger.debug("[BOOT-0] sys.path[0]: %s", sys.path[0] if sys.path else "?")
 logger.debug("=" * 70)
 
 
-# ---------------------------------------------------------------------------
-# STAGE 1 — import flet.
-# ---------------------------------------------------------------------------
 try:
     import flet as ft
 
@@ -44,11 +34,6 @@ except Exception:
     raise
 
 
-# ---------------------------------------------------------------------------
-# STAGE 2 — import the extension. This is the most likely place a black
-# screen originates: if the extension's Python package is broken or its
-# Flutter side isn't registered, this import may fail or hang.
-# ---------------------------------------------------------------------------
 try:
     from flet_quick_actions import QuickActions, ShortcutItem
 
@@ -58,9 +43,6 @@ except Exception:
     raise
 
 
-# ---------------------------------------------------------------------------
-# STAGE 3 — build the UI.
-# ---------------------------------------------------------------------------
 def main(page: ft.Page):
     logger.debug("[MAIN] main() entered")
 
@@ -76,7 +58,6 @@ def main(page: ft.Page):
         )
         logger.debug("[MAIN] text controls created")
 
-        # --- construct the service ---
         try:
             qa = QuickActions()
             logger.debug("[MAIN] QuickActions created: %r", qa)
@@ -85,7 +66,6 @@ def main(page: ft.Page):
             page.add(ft.Text(f"QuickActions() failed:\n{traceback.format_exc()}"))
             return
 
-        # --- event handler ---
         def on_action(e: ft.ControlEvent):
             logger.debug("[EVENT] on_action fired: data=%r", e.data)
             status.value = e.data
@@ -94,7 +74,6 @@ def main(page: ft.Page):
         qa.on_action = on_action
         logger.debug("[MAIN] on_action attached")
 
-        # --- clear handler ---
         async def clear_shortcuts(_):
             logger.debug("[EVENT] clear_shortcuts clicked")
             try:
@@ -106,7 +85,6 @@ def main(page: ft.Page):
                 status.value = f"clear failed: {sys.exc_info()[1]}"
             page.update()
 
-        # --- install handler ---
         async def install_shortcuts(_):
             logger.debug("[EVENT] install_shortcuts clicked")
             try:
@@ -131,7 +109,6 @@ def main(page: ft.Page):
                 status.value = f"install failed: {sys.exc_info()[1]}"
             page.update()
 
-        # --- cold-start setup task ---
         async def setup():
             logger.debug("[SETUP] setup() started")
             try:
@@ -171,7 +148,6 @@ def main(page: ft.Page):
             finally:
                 logger.debug("[SETUP] setup() finished")
 
-        # --- assemble the page ---
         page.add(
             ft.SafeArea(
                 content=ft.Column(
@@ -200,9 +176,6 @@ def main(page: ft.Page):
             logger.exception("[MAIN] failed to display error on page")
 
 
-# ---------------------------------------------------------------------------
-# STAGE 4 — hand off to Flet.
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     logger.debug("[BOOT-4] calling ft.run(main)")
     try:
