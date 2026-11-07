@@ -7,13 +7,13 @@ repository: https://github.com/osamalzabidi/flet-quick-actions
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.38.1"
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  flet: ">=0.85.0"
+  flet: ">=1.1.0"
   quick_actions: ^1.1.1
 
 dev_dependencies:
