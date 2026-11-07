@@ -3,10 +3,10 @@ name = "flet-quick-actions"
 version = "0.1.0"
 description = "Flet Quick Actions service."
 readme = "README.md"
+requires-python = ">=3.10"
 authors = [
     { name = "Osama Mohammed", email = "osamalzabidi@gmail.com" }
 ]
-requires-python = ">=3.10"
 keywords = ["flet", "quick", "actions", "android", "ios", "shortcut"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -20,21 +20,32 @@ classifiers = [
     "Intended Audience :: Developers",
 ]
 dependencies = [
-    "flet>=1.0.5",
+    "flet>=1.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]"
 ]
 
 [project.urls]
 Homepage = "https://github.com/osamalzabidi/flet-quick-actions"
+Documentation = "https://github.com/osamalzabidi/flet-quick-actions"
 Repository = "https://github.com/osamalzabidi/flet-quick-actions"
 Issues = "https://github.com/osamalzabidi/flet-quick-actions/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["flet_quick_actions", "flet_quick_actions.*", "flutter", "flutter.*"]
-
 [tool.setuptools.package-data]
-"flet_quick_actions" = ["**/*"]
 "flutter.flet_quick_actions" = ["**/*"]
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+# include = ["flet_quick_actions", "flet_quick_actions.*", "flutter", "flutter.*"]
+
+# [tool.setuptools.package-data]
+# "flet_quick_actions" = ["**/*"]
+# "flutter.flet_quick_actions" = ["**/*"]
 
 [build-system]
 requires = ["setuptools"]
